@@ -30,55 +30,55 @@ git clone https://github.com/omidsec/webex.git
 cd webex
 ```
 
-# Install requirements from file
+Install requirements from file
 ```
 pip install -r requirements.txt
 ```
 
-# Or install manually
+Or install manually
 ```
 pip install requests beautifulsoup4 colorama PySocks
 ```
 
 ---
-## Usage
+## 🖥 Usage
 
-# Basic crawling
+Basic crawling
 ```
 python3 webex.py -u https://example.com
 ```
 
-# With regex search
+With regex search
 ```
 python3 webex.py -u https://example.com -r "admin|login"
 ```
 
-# Multi-threaded crawling
+Multi-threaded crawling
 ```
 python3 webex.py -u https://example.com -t 10
 ```
 
-# Using HTTP proxy
+Using HTTP proxy
 ```
 python3 webex.py -u https://example.com -p http://127.0.0.1:8080
 ```
 
-# Using SOCKS5 proxy
+Using SOCKS5 proxy
 ```
 python3 webex.py -u https://example.com -p socks5://127.0.0.1:9050
 ```
 
-# Custom headers and User-Agent
+Custom headers and User-Agent
 ```
 python3 webex.py -u https://example.com -H "Authorization: Bearer TOKEN" -a "MyCrawler/1.0"
 ```
 
-# Exclude specific keywords from URLs
+Exclude specific keywords from URLs
 ```
 python3 webex.py -u https://example.com --no logout,exit
 ```
 
-# Self-update from GitHub before running
+Self-update from GitHub before running
 ```
 python3 webex.py -u https://example.com --update
 ```
