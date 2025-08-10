@@ -26,7 +26,7 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
 ## 📥 Installation
 **Clone the repository:**
 ```bash
-git clone https://github.com/omidsec/webex.git
+git clone https://github.com/omidsec/webex
 cd webex
 ```
 
