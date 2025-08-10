@@ -48,9 +48,9 @@ Basic crawling
 python3 webex.py -u https://example.com
 ```
 
-With regex search
+With Multiple regex >:)
 ```
-python3 webex.py -u https://example.com -r "admin|login"
+python3 webex.py -u https://example.com -r "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",".*backup.*\.zip$"
 ```
 
 Multi-threaded crawling
@@ -58,19 +58,15 @@ Multi-threaded crawling
 python3 webex.py -u https://example.com -t 10
 ```
 
-Using HTTP proxy
+Using proxy: HTTP & SOCKS5
 ```
 python3 webex.py -u https://example.com -p http://127.0.0.1:8080
-```
-
-Using SOCKS5 proxy
-```
 python3 webex.py -u https://example.com -p socks5://127.0.0.1:9050
 ```
 
 Custom headers and User-Agent
 ```
-python3 webex.py -u https://example.com -H "Authorization: Bearer TOKEN" -a "MyCrawler/1.0"
+python3 webex.py -u https://example.com -H "Authorization: Bearer TOKEN" -a "OmidSec_WebEX_Crawler/1.0"
 ```
 
 Exclude specific keywords from URLs
