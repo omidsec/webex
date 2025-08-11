@@ -10,6 +10,7 @@ import argparse
 import requests
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
+from bs4 import XMLParsedAsHTMLWarning
 from concurrent.futures import ThreadPoolExecutor
 import re
 import threading
@@ -24,6 +25,7 @@ import warnings
 import tempfile
 import shutil
 from urllib3.exceptions import InsecureRequestWarning
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # -------------------- Meta / Banner --------------------
 AUTHOR = "Omid Nasiri pouya (OmidSec)"
@@ -97,7 +99,7 @@ def parse_headers(header_string, user_agent):
     
     # Default User-Agent
     if not user_agent:
-        user_agent = "WebexCrawler/1.0 (+https://github.com/omidsec/webex)"
+        user_agent = "WebEX Crawler/1.0 (+https://github.com/omidsec/webex)"
     
     headers["User-Agent"] = user_agent
     return headers
