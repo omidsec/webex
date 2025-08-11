@@ -1,8 +1,13 @@
-![The lilspider has grown up — once you get to know it, you’ll fall in love.](https://omidsec.ir/wp-content/uploads/2025/08/Untitled-1.png)
+<p align="center">
+  <img src="https://omidsec.ir/wp-content/uploads/2025/08/Untitled-1.png" width="250" alt="The lilspider has grown up — once you get to know it, you’ll fall in love">
+</p>
 # Webex
 
 **Fast web crawler with regex search support for precise, in-scope data extraction.**
 
+<p align="center">
+  <img src="https://example.com/demo.gif" width="480" alt="webex is powerful web regex crawler">
+</p>
 ---
 
 ## 📜 Description
@@ -80,4 +85,3 @@ Self-update from GitHub before running
 ```
 python3 webex.py -u https://example.com --update
 ```
-![webex is powerful web regex crawler](https://omidsec.ir/wp-content/uploads/2025/08/tumblr_ojvxu6l2gz1vzgo6mo1_500.gif)
