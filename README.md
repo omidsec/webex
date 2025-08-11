@@ -5,7 +5,7 @@
 
 **Fast web crawler with regex search support for precise, in-scope data extraction.**
 
-<p align="center">
+<p align="left">
   <img src="https://omidsec.ir/wp-content/uploads/2025/08/tumblr_ojvxu6l2gz1vzgo6mo1_500.gif" width="480" alt="webex is powerful web regex crawler">
 </p>
 ---
