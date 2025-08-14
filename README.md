@@ -3,7 +3,7 @@
 **Fast web crawler with regex search support for precise, in-scope data extraction.**
 
 <p align="center">
-  <img src="https://omidsec.ir/wp-content/uploads/2025/08/Untitled-1.png" width="250" alt="The lilspider has grown up — once you get to know it, you’ll fall in love">
+  <img src="https://omidsec.ir/wp-content/uploads/2025/08/2025-08-14_18-23-30.jpg" width="720" alt="The lilspider has grown up — once you get to know it, you’ll fall in love">
 </p>
 
 ---
