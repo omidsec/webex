@@ -20,15 +20,15 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
 </p>
 
 ## ✨ Features
-- 🕵️‍♂️ It even gets past CDNs.
-- 🚀 Multi-threaded crawling for speed  
-- 🌐 Domain & subdomain scope restriction  
-- 🔍 Regex-based content search  
+- 🕵️‍♂️ Get past CDNs. ( 4 >= on Cloudflare) ( 8 >= on ArvanCloud)
+- 🚀 Multi-threaded
+- 🌐 Scope restriction (Domain & subdomain) 
+- 🔍 Multi-Regex content match
 - 🛡 Proxy support (HTTP/SOCKS5)  
 - 🎯 Custom headers & User-Agent  
 - ⏱ Delay and timeout control  
 - 📂 Automatic results saving  
-- 🔄 Self-update from GitHub  
+- 🔄 Self-update
 
 ---
 
@@ -42,6 +42,11 @@ cd webex
 Install requirements from file
 ```
 pip install -r requirements.txt
+```
+if have Error (error: externally-managed-environment)
+use this with your responsibility
+```
+pip install -r requirements.txt --break-system-packages
 ```
 
 Or install manually
@@ -59,7 +64,7 @@ python3 webex.py -u https://example.com
 
 With Multiple regex >:)
 ```
-python3 webex.py -u https://example.com -r "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",".*backup.*\.zip$"
+python3 webex.py -u https://example.com -r "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" -r ".*backup.*\.zip$"
 ```
 
 Multi-threaded crawling
@@ -73,9 +78,14 @@ python3 webex.py -u https://example.com -p http://127.0.0.1:8080
 python3 webex.py -u https://example.com -p socks5://127.0.0.1:9050
 ```
 
-Custom headers and User-Agent
+Custom headers
 ```
 python3 webex.py -u https://example.com -H "Authorization: Bearer TOKEN" -a "OmidSec_WebEX_Crawler/1.0"
+```
+
+Custome User-Agent (Default: OmidSec_WebEX_Crawler/1.0)
+```
+python3 webex.py -u https://example.com -a "OmidSec_WebEX_Crawler/1.0"
 ```
 
 Exclude specific keywords from URLs
