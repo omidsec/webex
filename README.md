@@ -15,9 +15,7 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
 
 ---
 
-<p align="left">
-  <img src="https://omidsec.ir/wp-content/uploads/2025/08/tumblr_ojvxu6l2gz1vzgo6mo1_500.gif" width="480" alt="webex is powerful web regex crawler">
-</p>
+
 
 ## ✨ Features
 - 🕵️‍♂️ Get past CDNs. ( 4 >= on Cloudflare) ( 8 >= on ArvanCloud)
@@ -33,6 +31,9 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
 ---
 
 ## 📥 Installation
+<p align="left">
+  <img src="https://omidsec.ir/wp-content/uploads/2025/08/install.png" width="720" alt="install gif and after that follow the commands">
+</p>
 **Clone the repository:**
 ```bash
 git clone https://github.com/omidsec/webex
@@ -56,7 +57,9 @@ pip install requests beautifulsoup4 colorama PySocks
 
 ---
 ## 🖥 Usage
-
+<p align="left">
+  <img src="https://omidsec.ir/wp-content/uploads/2025/08/start.jpg" width="720" alt="how to use webex crawler with regex">
+</p>
 Basic crawling
 ```
 python3 webex.py -u https://example.com
@@ -97,3 +100,6 @@ Self-update from GitHub before running
 ```
 python3 webex.py -u https://example.com --update
 ```
+<p align="left">
+  <img src="https://omidsec.ir/wp-content/uploads/2025/08/tumblr_ojvxu6l2gz1vzgo6mo1_500.gif" width="720" alt="webex is powerful web regex crawler">
+</p>
