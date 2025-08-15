@@ -1,5 +1,5 @@
-# webex.py ver.1.0
-# Author: omid nasiri pouya + my nigga chatgpt-4o
+# webex.py ver.1.1
+# Author: Idea: omid nasiri pouya Programmer: my nigga chatgpt-4o & 5
 # web: omidsec.ir
 # linkedin: https://linkedin.com/in/omidsec
 # youtube: https://youtube.com/@omidnasiri
@@ -458,7 +458,7 @@ def check_and_maybe_update(current_version, auto_update=False, proxy=None):
         else:
             print(f"{Fore.CYAN}Run with --update to auto-update.")
     else:
-        print(f"{Fore.GREEN}You are up-to-date (v{current_version}).")
+        print(f"{Fore.GREEN}webex up-to-date (v{current_version}).")
 
 # ------------------------------------------------------
 # CLI / Main
