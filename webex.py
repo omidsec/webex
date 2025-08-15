@@ -188,9 +188,30 @@ def build_text_for_matching(html, content_type="", current_url=""):
             soup = BeautifulSoup(html, features="xml")
         else:
             soup = BeautifulSoup(html, 'html.parser')
-        return soup.get_text(" ")
+        # CHANGED: preserve newlines for line-anchored regexes (^…$)
+        return soup.get_text("\n")
     except Exception:
         return html
+
+# NEW: Build concatenated attributes text (href/src/value/data-* etc.) for regex pass on attributes.
+def build_attributes_text(html, content_type="", current_url=""):
+    content_type = (content_type or "").lower()
+    try:
+        if "xml" in content_type or (current_url or "").endswith((".xml", "/feed", "/feed/")):
+            soup = BeautifulSoup(html, features="xml")
+        else:
+            soup = BeautifulSoup(html, 'html.parser')
+        chunks = []
+        for tag in soup.find_all(True):
+            for k, v in (tag.attrs or {}).items():
+                if isinstance(v, (list, tuple)):
+                    v = " ".join(str(x) for x in v)
+                elif v is None:
+                    continue
+                chunks.append(str(v))
+        return "\n".join(chunks)
+    except Exception:
+        return ""
 
 # Run all compiled regexes over provided text and return unique normalized matches.
 def run_compiled_regexes(text, compiled_regexes):
@@ -273,12 +294,17 @@ def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow
         fsync_milestone = (crawled_counter % 100 == 0)
     save_to_file(os.path.join(output_dir, "crawled_urls.txt"), {url}, do_fsync=fsync_milestone)
 
-    # regex match on visible text + raw html
+    # regex match on visible text + raw html + attributes
     if compiled_regexes:
         text_for_matching = build_text_for_matching(html, content_type=content_type, current_url=url)
         matches_text = run_compiled_regexes(text_for_matching, compiled_regexes)
+
         matches_html = run_compiled_regexes(html, compiled_regexes)
-        matches = set().union(matches_text, matches_html)
+
+        attrs_text = build_attributes_text(html, content_type=content_type, current_url=url)
+        matches_attrs = run_compiled_regexes(attrs_text, compiled_regexes)
+
+        matches = set().union(matches_text, matches_html, matches_attrs)
 
         if matches:
             with found_lock:
@@ -411,16 +437,19 @@ def check_and_maybe_update(current_version, auto_update=False, proxy=None):
                 print(f"{Fore.RED}Update check failed")
                 return
             try:
+                # Write to temp file then atomically replace current file
                 current_path = os.path.abspath(sys.argv[0])
                 dir_name = os.path.dirname(current_path)
                 fd, tmp_path = tempfile.mkstemp(prefix="webex_update_", suffix=".py", dir=dir_name)
                 with os.fdopen(fd, 'w', encoding='utf-8') as f:
                     f.write(latest_source)
+                # Preserve executable bit on *nix if set
                 try:
                     st = os.stat(current_path)
                     os.chmod(tmp_path, st.st_mode)
                 except Exception:
                     pass
+                # Replace
                 shutil.move(tmp_path, current_path)
                 print(f"{Fore.GREEN}Updated to version {latest_version}. Please re-run the tool.")
                 sys.exit(0)
