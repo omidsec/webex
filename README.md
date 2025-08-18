@@ -34,8 +34,8 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
 <p align="left">
   <img src="https://omidsec.ir/wp-content/uploads/2025/08/install.png" width="720" alt="install gif and after that follow the commands">
 </p>
-**Clone the repository:**
 
+**Clone the repository:**
 bash
 ```
 git clone https://github.com/omidsec/webex
