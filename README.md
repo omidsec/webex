@@ -35,7 +35,8 @@ With proxy support (HTTP/SOCKS5), custom headers, and URL filtering, Webex is id
   <img src="https://omidsec.ir/wp-content/uploads/2025/08/install.png" width="720" alt="install gif and after that follow the commands">
 </p>
 **Clone the repository:**
-```bash
+bash
+```
 git clone https://github.com/omidsec/webex
 cd webex
 ```
@@ -44,6 +45,7 @@ Install requirements from file
 ```
 pip install -r requirements.txt
 ```
+
 if have Error (error: externally-managed-environment)
 use this with your responsibility
 ```
