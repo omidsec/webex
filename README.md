@@ -104,6 +104,16 @@ Self-update from GitHub before running
 ```
 python3 webex.py -u https://example.com --update
 ```
+
+WINDOWS
+Open CMD and use like this
+```
+webex.exe -h
+webex.exe -u https://example.com
+webex.exe -u https://example.com -r "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" -r ".*backup.*\.zip$"
+webex.exe -u https://example.com -t 10
+```
+
 <p align="left">
   <img src="https://omidsec.ir/wp-content/uploads/2025/08/tumblr_ojvxu6l2gz1vzgo6mo1_500.gif" width="720" alt="webex is powerful web regex crawler">
 </p>
