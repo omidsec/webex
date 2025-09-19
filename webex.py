@@ -1,10 +1,12 @@
-# webex.py ver.1.1
+# webex.py ver.1.2
 # Author: Idea: omid nasiri pouya Programmer: my nigga chatgpt-4o & 5
 # web: omidsec.ir
 # linkedin: https://linkedin.com/in/omidsec
 # youtube: https://youtube.com/@omidnasiri
 # telegram: https://t.me/omidsec
 # email: omid.nasirip+webex@gmail.com
+
+
 
 import argparse
 import requests
@@ -23,20 +25,26 @@ import os
 import time
 import warnings
 import tempfile
+import platform
 import shutil
-import signal
 from requests.adapters import HTTPAdapter
 from urllib3.exceptions import InsecureRequestWarning
+
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
+
+
 # -------------------- Meta / Banner --------------------
+
 AUTHOR = "Omid Nasiri pouya (OmidSec)"
 TOOL_NAME = "webex"
-VERSION = "1.0"  # <-- for release a new version
+VERSION = "1.2"  # <-- for release a new version
 REPO = "omidsec/webex"
 GITHUB_API_RELEASES_LATEST = f"https://api.github.com/repos/{REPO}/releases/latest"
 GITHUB_RAW_MAIN = f"https://raw.githubusercontent.com/{REPO}/refs/heads/main/webex.py"
 GITHUB_RAW_MASTER = f"https://raw.githubusercontent.com/{REPO}/refs/heads/master/webex.py"
+
+
 
 # Suppress SSL warnings
 warnings.simplefilter('ignore', InsecureRequestWarning)
@@ -63,6 +71,8 @@ sess.mount("http://", adapter)
 sess.mount("https://", adapter)
 sess.headers["Connection"] = "close"
 
+
+
 # ------------------------------------------------------
 # Utility & UI
 # ------------------------------------------------------
@@ -84,16 +94,40 @@ def print_banner():
     print(repo)
     print(bar)
 
-# Global SIGINT (Ctrl+C) handler: set stop flag and close session to abort in-flight requests immediately.
-def handle_sigint(signum, frame):
-    print(f"\n{Fore.RED}[!] Ctrl+C detected. Stopping workers...")
-    stop_event.set()
-    try:
-        sess.close()
-    except Exception:
-        pass
+# ------------------------------------------------------
+# Global SIGINT (Ctrl+C) handler — platform-aware
+# ------------------------------------------------------
 
-signal.signal(signal.SIGINT, handle_sigint)
+
+OS_NAME = platform.system().lower()
+
+if OS_NAME == "windows":
+    try:
+        import win32api
+
+        def windows_ctrl_handler(ctrl_type):
+            if ctrl_type == 0:  # CTRL_C_EVENT
+                print(f"\n{Fore.RED}[!] Ctrl+C detected (Windows). Exiting cleanly...")
+                sys.exit(130)
+            return True
+
+        # Register Windows console handler
+        win32api.SetConsoleCtrlHandler(windows_ctrl_handler, True)
+
+    except ImportError:
+        print(f"{Fore.YELLOW}[!] Warning: pywin32 not installed; Ctrl+C may not exit cleanly on Windows.")
+
+else:
+    import signal
+
+    def handle_sigint(signum, frame):
+        print(f"\n{Fore.RED}[!] Ctrl+C detected (Unix). Exiting cleanly...")
+        sys.exit(130)
+
+    # Register Unix signal handler
+    signal.signal(signal.SIGINT, handle_sigint)
+
+
 
 # ------------------------------------------------------
 # Networking / Proxy / Headers
@@ -123,10 +157,12 @@ def parse_headers(header_string, user_agent):
 
     # Default User-Agent
     if not user_agent:
-        user_agent = "WebEX Crawler/1.0 (+https://github.com/omidsec/webex)"
+        user_agent = f"WebEX Crawler/{VERSION} (+https://github.com/{REPO})"
 
     headers["User-Agent"] = user_agent
     return headers
+
+
 
 # ------------------------------------------------------
 # URL helpers
@@ -164,6 +200,8 @@ def extract_links(html, base_url, skip_words, content_type="", current_url=""):
             if is_valid(joined) and not should_skip(joined, skip_words):
                 urls.add(joined)
     return urls
+
+
 
 # ------------------------------------------------------
 # Regex compile & matching
@@ -240,12 +278,14 @@ def save_to_file(filename, data_set, do_fsync=False):
             except Exception:
                 pass
 
+
+
 # ------------------------------------------------------
 # Core crawling
 # ------------------------------------------------------
 
 # Crawls a single URL: fetch, log, regex match, enqueue in-scope links.
-def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url):
+def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url, with_source, fsync_interval):
     if stop_event.is_set():
         return
     if should_skip(url, skip_words):
@@ -287,11 +327,14 @@ def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow
 
     print(f"{Fore.CYAN}[CRAWLED] {url}")
 
-    # save URL immediately; fsync every 100
+    # save URL immediately; fsync depends on user setting
     global crawled_counter
     with crawled_lock:
         crawled_counter += 1
-        fsync_milestone = (crawled_counter % 100 == 0)
+        if fsync_interval > 0:
+            fsync_milestone = (crawled_counter % fsync_interval == 0)
+        else:
+            fsync_milestone = False
     save_to_file(os.path.join(output_dir, "crawled_urls.txt"), {url}, do_fsync=fsync_milestone)
 
     # regex match on visible text + raw html + attributes
@@ -308,13 +351,28 @@ def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow
 
         if matches:
             with found_lock:
-                new_matches = matches - found
-                if new_matches:
-                    found.update(new_matches)
-                    for m in new_matches:
-                        print(f"{Fore.YELLOW}[MATCH] {m}")
-                    # save immediately and fsync to avoid loss
-                    save_to_file(os.path.join(output_dir, "regex_results.txt"), new_matches, do_fsync=True)
+                if with_source:
+                    # when with_source is True, store (match, source_url) pairs in 'found'
+                    paired = set((m, url) for m in matches)
+                    new_pairs = paired - found
+                    if new_pairs:
+                        found.update(new_pairs)
+                        lines = set()
+                        for m, src in new_pairs:
+                            print(f"{Fore.YELLOW}[MATCH] {m} (source: {src})")
+                            # save line as "match ||| source_url"
+                            lines.add(f"{m} ||| {src}")
+                        # save immediately and fsync to avoid loss
+                        save_to_file(os.path.join(output_dir, "regex_results.txt"), lines, do_fsync=True)
+                else:
+                    # original behavior (dedupe by match only)
+                    new_matches = matches - found
+                    if new_matches:
+                        found.update(new_matches)
+                        for m in new_matches:
+                            print(f"{Fore.YELLOW}[MATCH] {m}")
+                        # save immediately and fsync to avoid loss
+                        save_to_file(os.path.join(output_dir, "regex_results.txt"), new_matches, do_fsync=True)
 
             if max_count and mode == 'regex' and len(found) >= max_count:
                 return
@@ -343,7 +401,7 @@ def crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow
                     pass
 
 # Worker thread loop: pulls URLs from queue and crawls them until limits or stop.
-def worker(compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url):
+def worker(compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url, with_source, fsync_interval):
     while not stop_event.is_set():
         try:
             url = url_queue.get(timeout=1)
@@ -366,8 +424,10 @@ def worker(compiled_regexes, proxy, headers, max_count, mode, timeout, allow_red
             url_queue.task_done()
             break
 
-        crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url)
+        crawl(url, compiled_regexes, proxy, headers, max_count, mode, timeout, allow_redirects, delay, output_dir, skip_words, base_url, with_source, fsync_interval)
         url_queue.task_done()
+
+
 
 # ------------------------------------------------------
 # Version / Update
@@ -460,6 +520,8 @@ def check_and_maybe_update(current_version, auto_update=False, proxy=None):
     else:
         print(f"{Fore.GREEN}webex up-to-date (v{current_version}).")
 
+
+
 # ------------------------------------------------------
 # CLI / Main
 # ------------------------------------------------------
@@ -477,10 +539,14 @@ def main():
     parser.add_argument("-H", "--header", action="append", help='Custom header (e.g. -H "Key: Value")')
     parser.add_argument("-a", "--agent", help="Custom User-Agent string")
     parser.add_argument("--delay", type=float, default=0, help="Delay in seconds between requests")
-    parser.add_argument("--timeout", type=int, default=10, help="Timeout (seconds) for both connect/read")
+    parser.add_argument("--timeout", type=int, default=10, help="Timeout (seconds) for both connect/read)")
     parser.add_argument("--redirect", choices=["TRUE", "FALSE"], default="TRUE", help="Follow redirects")
     parser.add_argument("--no", help="Comma-separated strings to skip in URLs")
     parser.add_argument("--update", action="store_true", help="Check GitHub and auto-update if a newer version exists")
+    parser.add_argument("--with-source", action="store_true",
+                        help="Include the source page URL next to each regex match (prints and saves as 'match ||| source_url')")
+    parser.add_argument("--fsync", type=int, default=1,
+                        help="Flush+fsync every N crawled URLs (default=1 = safest; set higher for speed; 0 to disable fsync)")
 
     args = parser.parse_args()
 
@@ -544,7 +610,9 @@ def main():
                 args.delay,
                 output_dir,
                 skip_words,
-                start_url
+                start_url,
+                args.with_source,
+                args.fsync
             )
 
         # Wait cooperatively; don't block forever if Ctrl+C pressed
@@ -556,14 +624,20 @@ def main():
             url_queue.join()
 
     except KeyboardInterrupt:
-        handle_sigint(None, None)
-        # quick drain so threads exit
-        while not url_queue.empty():
+        # Robust cross-platform shutdown on Ctrl+C (Linux/Windows/WSL/Termux).
+        print(f"\n{Fore.RED}[!] Ctrl+C detected. Stopping workers...")
+        stop_event.set()
+        try:
+            sess.close()
+        except Exception:
+            pass
+        if executor:
             try:
-                url_queue.get_nowait()
-                url_queue.task_done()
+                executor.shutdown(wait=False, cancel_futures=True)
             except Exception:
-                break
+                pass
+        sys.exit(130)  # standard exit code for SIGINT
+
     finally:
         if executor:
             try:
@@ -573,6 +647,7 @@ def main():
 
     print(f"{Fore.GREEN}Done. Total URLs crawled: {len(visited)}. Total matches: {len(found)}.")
     print(f"{Fore.GREEN}Results saved in: {output_dir}")
+
 
 if __name__ == "__main__":
     main()
