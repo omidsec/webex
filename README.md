@@ -105,7 +105,7 @@ Self-update from GitHub before running
 python3 webex.py -u https://example.com --update
 ```
 ---
-##WINDOWS
+## WINDOWS
 Open CMD and use like this
 ```
 webex.exe -h
